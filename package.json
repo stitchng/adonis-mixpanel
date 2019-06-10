@@ -1,0 +1,73 @@
+{
+  "name": "adonisjs-mixpanel",
+  "version": "0.0.1",
+  "description": "BugSnag addon/plugin package for AdonisJS 4.0+ apps",
+  "main": "index.js",
+  "files": [
+    "src",
+    "config",
+    "providers",
+    "instructions.js",
+    "instructions.md"
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "engines": {
+    "node": ">=8.0"
+  },
+  "scripts": {
+    "lint": "standard",
+    "pretest": "npm run lint",
+    "test": "nyc node japaFile.js",
+    "test:win": "node ./node_modules/japa-cli/index.js",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "keywords": [
+    "tracking",
+    "data",
+    "funnels",
+    "engagement",
+    "API",
+    "adonis",
+    "mixpanel",
+    "adonisjs",
+    "adonis-framework"
+  ],
+  "author": "StitchNG <stitchnig@gmail.com> (https://twitter.com/stitchappn)",
+  "license": "MIT",
+  "nyc": {
+    "exclude": [
+      "test"
+    ]
+  },
+  "standard": {
+    "globals": [
+      "use",
+      "test"
+    ]
+  },
+  "dependencies": {
+    "@adonisjs/generic-exceptions": "^2.0.1",
+    "mixpanel": "^0.10.2",
+    "debug": "^3.1.2"
+  },
+  "devDependencies": {
+    "@adonisjs/fold": "^4.0.9",
+    "@adonisjs/sink": "^1.0.6",
+    "coveralls": "^3.0.2",
+    "japa": "^2.0.5",
+    "japa-cli": "^1.0.1",
+    "nyc": "^13.0.1",
+    "semver": "^5.5.0",
+    "standard": "^12.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stitchng/adonis-mixpanel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stitchng/adonis-mixpanel/issues"
+  },
+  "homepage": "https://github.com/stitchng/adonis-mixpanel#readme"
+}
