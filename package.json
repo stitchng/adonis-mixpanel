@@ -1,7 +1,7 @@
 {
   "name": "adonisjs-mixpanel",
   "version": "0.0.1",
-  "description": "BugSnag addon/plugin package for AdonisJS 4.0+ apps",
+  "description": "An addon/plugin package to provide Mixpanel data collection services in AdonisJS 4.0+",
   "main": "index.js",
   "files": [
     "src",
