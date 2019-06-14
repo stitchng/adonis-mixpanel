@@ -13,7 +13,7 @@ const test = require('japa')
 const path = require('path')
 const { Config, Env, Helpers } = require('@adonisjs/sink')
 const { ioc } = require('@adonisjs/fold')
-const MixPanelMiddleware = require('../src/MixPanel/Middleware/MixPanelUserTracker.js')
+// const MixPanelMiddleware = require('../src/MixPanel/Middleware/MixPanelUserTracker.js')
 const MixPanelProvider = require('../providers/MixPanelProvider.js')
 const MixPanel = require('../src/MixPanel/index.js')
 
@@ -37,9 +37,11 @@ test.group('AdonisJS MixPanel Provider Test(s)', (group) => {
       return helpers
     })
   })
-  
+
   test('provider instance registers instance(s) as expected', async (assert) => {
     let provider = new MixPanelProvider(ioc)
     provider.register()
+
+    assert.instanceOf(ioc.use('MixPanel'), MixPanel)
   })
 })
