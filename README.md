@@ -151,7 +151,7 @@ See the [CONTRIBUTING.md](https://github.com/stitchng/adonis-mixpanel/blob/maste
 
 ## Support 
 
-**Coolcodes** is a non-profit software foundation (collective) based in Abuja, Nigeria. You'll find an overview of all our work and supported open source projects on our [Facebook Page](https://www.facebook.com/coolcodes/).
+**Coolcodes** is a non-profit software foundation (collective) created by **Oparand** - parent company of StitchNG, Synergixe based in Abuja, Nigeria. You'll find an overview of all our work and supported open source projects on our [Facebook Page](https://www.facebook.com/coolcodes/).
 
 >Follow us on facebook if you can to get the latest open source software/freeware news and infomation.
 
