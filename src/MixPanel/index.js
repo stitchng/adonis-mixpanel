@@ -16,7 +16,7 @@ class MixpanelApiClient {
     this.client.track(eventName, options)
   }
 
-  trackUserCreate (user = {}, userNameKey, options = {}) {
+  trackUserCreation (user = {}, userNameKey, options = {}) {
     let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
 
     delete user[userNameKey]
@@ -27,7 +27,7 @@ class MixpanelApiClient {
     return userName
   }
 
-  trackUserUpdate (user = {}, userNameKey, options = {}) {
+  trackUserModification (user = {}, userNameKey, options = {}) {
     let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
 
     delete user[userNameKey]
@@ -38,7 +38,7 @@ class MixpanelApiClient {
     return userName
   }
 
-  trackUserBillPayment (user = {}, userNameKey, billAmount = 0) {
+  trackUserBillCharge (user = {}, userNameKey, billAmount = 0) {
     let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
 
     delete user[userNameKey]

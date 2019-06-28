@@ -10,12 +10,38 @@ const providers = [
 
 ## Registering middleware
 
-Register the following middleware inside `start/kernel.js` file. Place the bugsnag middleware after the 'Adonis/Middleware/AuthInit' middleware
+Register this middleware as a **global** middleware inside the `start/kernel.js` file. Place it after the `Adonis/Middleware/AuthInit` middleware
+
+```js
+const globalMiddleware = [
+  'Adonis/Middleware/Session',
+  ...
+  'Adonis/Middleware/AuthInit',
+  'Adonis/Middleware/MixPanelHttpTracker'
+]
+```
+
+Register this middleware as a **named** middleware inside the `start/kernel.js` file.
 
 ```js
 const namedMiddleware = {
-  mixtrack:'Adonis/Middleware/MixPanelUserTracker'
+  mixtrack:'Adonis/Middleware/MixPanelUserPropsTracker'
 }
+```
+
+## Usage 
+Use as follows in `start/routes.js` file
+
+```js
+
+const Route = use('Route')
+
+Route.group(() => {
+  Route.put('/login', function({ request, response }){
+    return response.send('User Logged In!')
+  })
+}).prefix('user').middleware(['mixtrack:user_login;email'])
+
 ```
 
 ## Config

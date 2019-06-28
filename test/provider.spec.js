@@ -13,7 +13,7 @@ const test = require('japa')
 const path = require('path')
 const { Config, Env, Helpers } = require('@adonisjs/sink')
 const { ioc } = require('@adonisjs/fold')
-// const MixPanelMiddleware = require('../src/MixPanel/Middleware/MixPanelUserTracker.js')
+// const MixPanelTrackerMiddleware = require('../src/MixPanel/Middleware/MixPanelUserPropsTracker.js')
 const MixPanelProvider = require('../providers/MixPanelProvider.js')
 const MixPanel = require('../src/MixPanel/index.js')
 

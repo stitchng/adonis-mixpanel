@@ -15,11 +15,24 @@ class MixPanelProvider extends ServiceProvider {
 
     this.app.alias('Adonis/Addons/MixPanel', 'MixPanel')
 
-    this.app.bind('Adonis/Middleware/MixPanelUserTracker', (app) => {
+    this.app.bind('Adonis/Middleware/MixPanelHttpTracker', (app) => {
       const Config = this.app.use('Adonis/Src/Config')
-      let MixPanelUserTracker = require('../src/MixPanel/Middleware/MixPanelUserTracker.js')
-      return new MixPanelUserTracker(this.app.use('Adonis/Addons/MixPanel'), Config)
+      let MixPanelHttpTracker = require('../src/MixPanel/Middleware/MixPanelHttpTracker.js')
+      return new MixPanelHttpTracker(this.app.use('Adonis/Addons/MixPanel'), Config)
     })
+
+    this.app.bind('Adonis/Middleware/MixPanelUserPropsTracker', (app) => {
+      let MixPanelUserPropsTracker = require('../src/MixPanel/Middleware/MixPanelUserPropsTracker.js')
+      return new MixPanelUserPropsTracker(this.app.use('Adonis/Addons/MixPanel'))
+    })
+  }
+
+  boot () {
+    /* const Server = use('Server')
+
+    Server.registerNamed({
+      mixtrack:'Adonis/Middleware/MixPanelUserPropsTracker'
+    }) */;
   }
 }
 

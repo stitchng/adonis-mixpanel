@@ -1,6 +1,6 @@
 # adonis-mixpanel
 
-An addon/plugin package to provide Mixpanel data collection services in AdonisJS 4.0+
+An addon/plugin package to provide Mixpanel data collection and tracking services in AdonisJS 4.0+
 
 [![NPM Version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
@@ -24,7 +24,89 @@ An addon/plugin package to provide Mixpanel data collection services in AdonisJS
 
 ```js
 
-    const MixPanel = use('MixPanel')
+    const mixpanel = use('MixPanel')
+    const user = use('App/Models/User')
+
+    class UserController {
+
+        async fetch({ request, response }){
+
+            let allUsers = await user.all()
+
+            return response.status(200).json({
+                users:allUsers
+            });
+        }
+
+        async register({ request, response }) {
+
+            let user_details = request.only([
+                'dob',
+                'email',
+                'phone',
+                'first_name',
+                'last_name'
+            ])
+
+            let newUser = await user.create(user_details)
+
+            // track a new user registered to the web/mobile app
+            mixpanel.trackUserCreation(
+                newUser.toJSON(), 
+                'email',
+                {}
+            );
+
+            return response.status(201).json({
+                message:'User Created!',
+                user: newUSer.toJSON()
+            });
+        }
+    }
+
+    module.exports = UserController
+
+```
+
+```js
+
+const mixpanel = use('MixPanel')
+const user = use('App/Models/User')
+
+class BillingController {
+
+    async payment({ request, response }){
+
+        let user = await user.find(1)
+
+        // track the charge made on a user for using the web/mobile app
+        // which ties to revenue from the user
+        mixpanel.trackUserBillCharge(
+            user,
+            'email',
+            40000 // Naira
+        )
+    }
+}
+
+module.exports = BillingController
+
+```
+
+>This library can also be used to track events using the `mixtrack` named middleware.
+
+```js
+
+const Route = use('Route')
+
+Route.group(() => {
+  Route.get('/all', 'UserController.fetch')
+  Route.put('/login', function({ request, response }){
+    return response.send('User Logged In!')
+  })
+})
+.prefix('user')
+.middleware(['mixtrack:user_login;email']) // track login events for every user via 'email'
 
 ```
 
