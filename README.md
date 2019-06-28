@@ -20,53 +20,55 @@ An addon/plugin package to provide Mixpanel data collection and tracking service
 
 ## Usage
 
->Import and use 
+>Import and use in controllers or the standard **AdonisJS Event Bus**
 
 ```js
 
-    const mixpanel = use('MixPanel')
-    const user = use('App/Models/User')
+const mixpanel = use('MixPanel')
+const user = use('App/Models/User')
 
-    class UserController {
+class UserController {
 
-        async fetch({ request, response }){
+    async fetch({ request, response }){
 
-            let allUsers = await user.all()
+        let allUsers = await user.all()
 
-            return response.status(200).json({
-                users:allUsers
-            });
-        }
-
-        async register({ request, response }) {
-
-            let user_details = request.only([
-                'dob',
-                'email',
-                'phone',
-                'first_name',
-                'last_name'
-            ])
-
-            let newUser = await user.create(user_details)
-
-            // track a new user registered to the web/mobile app
-            mixpanel.trackUserCreation(
-                newUser.toJSON(), 
-                'email',
-                {}
-            );
-
-            return response.status(201).json({
-                message:'User Created!',
-                user: newUSer.toJSON()
-            });
-        }
+        return response.status(200).json({
+            users:allUsers
+        });
     }
 
-    module.exports = UserController
+    async register({ request, response }) {
+
+        let user_details = request.only([
+            'dob',
+            'email',
+            'phone',
+            'first_name',
+            'last_name'
+        ])
+
+        let newUser = await user.create(user_details)
+
+        // track a new user registered to the web/mobile app
+        mixpanel.trackUserCreation(
+            newUser.toJSON(), 
+            'email',
+            {}
+        );
+
+        return response.status(201).json({
+            message:'User Created!',
+            user: newUSer.toJSON()
+        });
+    }
+}
+
+module.exports = UserController
 
 ```
+
+>More examples
 
 ```js
 
@@ -146,3 +148,11 @@ See the [CONTRIBUTING.md](https://github.com/stitchng/adonis-mixpanel/blob/maste
 [coveralls-image]: https://img.shields.io/coveralls/stitchng/adonis-mixpanel/master.svg?style=flat-square
 
 [coveralls-url]: https://coveralls.io/github/stitchng/adonis-mixpanel
+
+## Support 
+
+**Coolcodes** is a non-profit software foundation (collective) based in Abuja, Nigeria. You'll find an overview of all our work and supported open source projects on our [Facebook Page](https://www.facebook.com/coolcodes/).
+
+>Follow us on facebook if you can to get the latest open source software/freeware news and infomation.
+
+Does your business depend on our open projects? Reach out and support us on [Patreon](https://www.patreon.com/coolcodes/). All pledges will be dedicated to allocating workforce on maintenance and new awesome stuff.
