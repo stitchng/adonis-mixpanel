@@ -31,7 +31,7 @@ class MixPanelHttpTracker {
 
     await next()
 
-    options.responseHeaders = response.headers()
+    options.responseHeaders = []
     options.responseStatusCode = response.response.statusCode
 
     this.mixpanel.trackEvent('http-trail', options)
