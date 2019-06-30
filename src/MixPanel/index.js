@@ -27,6 +27,15 @@ class MixpanelApiClient {
     return userName
   }
 
+  trackUserDeletion (user = {}, userNameKey) {
+    let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
+
+    delete user[userNameKey]
+    this.client.people.delete_user(userName)
+
+    return userName
+  }
+
   trackUserModification (user = {}, userNameKey, options = {}) {
     let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
 

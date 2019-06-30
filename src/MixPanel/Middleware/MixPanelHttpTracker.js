@@ -16,7 +16,7 @@ class MixPanelHttpTracker {
       requestHeaders: request.headers(),
       requestCookies: request.plainCookies(),
       language: request.language(['en', 'fr', 'es']),
-      requestUrl: request.originalUrl(),
+      requestUrlPath: request.originalUrl(),
       isAjax: request.ajax(),
       browser: request.header('User-Agent'),
       referer: request.header('Referer'),

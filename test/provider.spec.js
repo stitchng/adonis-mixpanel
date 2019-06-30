@@ -13,7 +13,8 @@ const test = require('japa')
 const path = require('path')
 const { Config, Env, Helpers } = require('@adonisjs/sink')
 const { ioc } = require('@adonisjs/fold')
-// const MixPanelTrackerMiddleware = require('../src/MixPanel/Middleware/MixPanelUserPropsTracker.js')
+const MixPanelHttpTracker = require('../src/MixPanel/Middleware/MixPanelHttpTracker.js')
+const MixPanelUserPropsTracker = require('../src/MixPanel/Middleware/MixPanelUserPropsTracker.js')
 const MixPanelProvider = require('../providers/MixPanelProvider.js')
 const MixPanel = require('../src/MixPanel/index.js')
 
@@ -42,6 +43,14 @@ test.group('AdonisJS MixPanel Provider Test(s)', (group) => {
     let provider = new MixPanelProvider(ioc)
     provider.register()
 
-    assert.instanceOf(ioc.use('MixPanel'), MixPanel)
+    let mixpanel = ioc.use('MixPanel')
+
+    assert.instanceOf(mixpanel, MixPanel)
+    assert.isFunction(mixpanel.trackUserBillCharge)
+    assert.isFunction(mixpanel.trackUserModification)
+    assert.isFunction(mixpanel.trackEvent)
+
+    assert.instanceOf(ioc.use('Adonis/Middleware/MixPanelHttpTracker'), MixPanelHttpTracker)
+    assert.instanceOf(ioc.use('Adonis/Middleware/MixPanelUserPropsTracker'), MixPanelUserPropsTracker)
   })
 })
