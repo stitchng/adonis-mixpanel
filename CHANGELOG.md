@@ -1,3 +1,10 @@
+<a name="0.0.3"></a>
+# 0.0.3 (2019-07-27)
+
+### Bug Fixes
+- fixed error in `MixpanelUserPropsTracker` middleware
+-
+
 <a name="0.0.2"></a>
 # 0.0.2 (2019-06-30)
 

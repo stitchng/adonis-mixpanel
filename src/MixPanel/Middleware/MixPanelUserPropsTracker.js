@@ -5,7 +5,7 @@ class MixPanelUserPropsTracker {
     this.mixpanel = mixpanel
   }
 
-  async handle ({ request, auth, session }, next, settings) {
+  async handle ({ request, auth, session }, next, settings = []) {
     let parsed = this.parseSetting(settings)
     let user = request.user
 
@@ -54,7 +54,7 @@ class MixPanelUserPropsTracker {
     await next()
   }
 
-  parseSetting (settings = []) {
+  parseSetting (settings) {
     /*
       [
         'user_logout;email',
@@ -76,7 +76,9 @@ class MixPanelUserPropsTracker {
       parsed.data = storage.split('.')
 
       result.push(parsed)
-    })
+    });
+
+    return result;
   }
 }
 
