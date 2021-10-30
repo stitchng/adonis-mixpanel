@@ -6,8 +6,9 @@ class MixPanelHttpTracker {
     this.trackIp = Config.get('mixpanel.trackIp')
   }
 
-  async handle ({ request, response, session }, next) {
-    let isUserLoggedIn = (parseInt(session.get('adonis-auth')) === 1)
+  async handle ({ request, response, session, auth }, next) {
+    const canGetFromSession = !!session && typeof session.get === 'function'
+  
     let method = request.method().toLowerCase()
 
     let options = {
@@ -20,9 +21,8 @@ class MixPanelHttpTracker {
       isAjax: request.ajax(),
       browser: request.header('User-Agent'),
       referer: request.header('Referer'),
-      scheme: request.protocol(),
+      origin: typeof request.origin === 'function' ? request.origin() : `${request.protocol()}`,
       timestamp: Date.now(),
-      userLoggedIn: isUserLoggedIn
     }
 
     if (this.trackIp) {
@@ -31,10 +31,27 @@ class MixPanelHttpTracker {
 
     await next()
 
-    options.responseHeaders = []
+    let isUserLoggedIn = canGetFromSession ? (parseInt(session.get('adonis-auth')) === 1) : !!auth.user
+    const user = isUserLoggedIn ? auth.user : { toJSON: () => ({}) }
+
+    options.userLoggedIn = isUserLoggedIn
+    options.responseHeaders = response.headers() || []
     options.responseStatusCode = response.response.statusCode
 
-    this.mixpanel.trackEvent('http-trail', options)
+    if (typeof request.fingerprint === 'function') {
+      options.fingerprint =  request.fingerprint
+    }
+
+    if (typeof request.currentRoute === 'function') {
+      routeName =  request.currentRoute().name
+    }
+
+    try {
+      this.mixpanel.trackEvent('app_server_request', options)
+      this.mixpanel.trackIncrementOnUserBasicAttributes(user.toJSON(), { 'Server Requests Count': 1 })
+    } catch {
+      ;
+    }
   }
 }
 

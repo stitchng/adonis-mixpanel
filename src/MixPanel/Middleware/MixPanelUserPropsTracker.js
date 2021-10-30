@@ -6,6 +6,7 @@ class MixPanelUserPropsTracker {
   }
 
   async handle ({ request, auth, session }, next, settings = []) {
+
     let parsed = this.parseSetting(settings)
     let user = request.user
 
@@ -20,9 +21,10 @@ class MixPanelUserPropsTracker {
         let [ store, accessor ] = _parsed.data || ['_', '_']
         let context = {}
 
+        const canGetFromSession = store === 'session' ? !!session && typeof session[accessor] === 'function' : false
+
         context[store] = (
-          store === 'session'
-            ? session[accessor] && session[accessor]()
+          canGetFromSession ? session[accessor]()
             : (store === 'cookie'
               ? request.cookies() : {}))
 
@@ -32,16 +34,14 @@ class MixPanelUserPropsTracker {
             context['_tag'] = user[_parsed.username]
             this.mixpanel.trackEvent(_parsed.mark, Object.assign(
               {},
-              user,
               {
                 _context: context
               }
             ))
             break
           case 'user_updated':
-            this.mixpanel.trackUserModification(
+            this.mixpanel.trackUserMergedAttributes(
               user,
-              _parsed.username,
               {
                 _context: context
               }
@@ -55,12 +55,14 @@ class MixPanelUserPropsTracker {
   }
 
   parseSetting (settings) {
-    /*
+    /* @SAMPLE:
+
       [
         'user_logout;email',
         'user_login;email|session.all' ,
         'user_updated;full_name|cookie.all'
       ]
+    
     */
 
     const result = []
