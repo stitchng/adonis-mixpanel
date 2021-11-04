@@ -21,18 +21,27 @@ class MixpanelApiClient {
     let id = user[this.distinctIdNameKey]
 
     this.client.alias(id, userName)
+    return [userName, id]
   }
 
-  updateUserIdentification (newAlias, existingAlias) {
-    this.client.alias(newAlias, existingAlias)
+  updateUserIdentification (user = {},  existingAlias, newAlias) {
+    let userName = newAlias || user[this.aliasNameKey] || '_'
+
+    if (!existingAlias || typeof existingAlias !== 'string') {
+      this.client.alias(userName)
+      return;
+    }
+
+    this.client.alias(userName, existingAlias)
+    return userName
   }
 
   trackEvent (eventName = 'event', data = {}) {
     if (this.trackIP && !data.ip) {
-      throw new Error('')
+      throw new Error('[Adonis-Mixpanel]: event data need to contain ip address info to proceed')
     }
 
-    this.client.track(eventName, options)
+    this.client.track(eventName, data)
   }
 
   trackUserBasicAttributes (user = {}, options = {}) {

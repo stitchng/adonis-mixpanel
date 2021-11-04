@@ -1,5 +1,5 @@
 <a name="0.1.0"></a>
-# 0.1.0 (2021-11-01)
+# 0.1.0 (2021-11-05)
 
 ### Bug Fixes
 - Nil
@@ -12,7 +12,6 @@
 
 ### Bug Fixes
 - fixed error in `MixpanelUserPropsTracker` middleware
--
 
 <a name="0.0.2"></a>
 # 0.0.2 (2019-06-30)

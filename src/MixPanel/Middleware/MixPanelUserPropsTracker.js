@@ -12,7 +12,7 @@ class MixPanelUserPropsTracker {
 
     try {
       if (!user) { user = await auth.getUser() }
-    } catch (error) {
+    } catch (_) {
       user = {}
     }
 
@@ -21,7 +21,9 @@ class MixPanelUserPropsTracker {
         let [ store, accessor ] = _parsed.data || ['_', '_']
         let context = {}
 
-        const canGetFromSession = store === 'session' ? !!session && typeof session[accessor] === 'function' : false
+        const canGetFromSession = store === 'session' 
+          ? !!session && typeof session[accessor] === 'function'
+          : false
 
         context[store] = (
           canGetFromSession ? session[accessor]()

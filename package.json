@@ -52,6 +52,9 @@
     "mixpanel": "^0.10.2",
     "debug": "^3.1.2"
   },
+  "peerDependencies": {
+    "adonisjs-extensions": "^0.0.10"
+  },
   "devDependencies": {
     "@adonisjs/fold": "^4.0.9",
     "@adonisjs/sink": "^1.0.6",

@@ -16,13 +16,14 @@ class MixPanelHttpTracker {
       payload: (/^(?:head|get)$/.test(method) ? request.get() : request.post()),
       requestHeaders: request.headers(),
       requestCookies: request.plainCookies(),
-      language: request.language(['en', 'fr', 'es']),
+      language: request.language(['en', 'fr', 'es', 'cy', 'da', 'de', 'el', 'fa', 'fi', 'ga', 'gd']),
       requestUrlPath: request.originalUrl(),
       isAjax: request.ajax(),
       browser: request.header('User-Agent'),
       referer: request.header('Referer'),
-      origin: typeof request.origin === 'function' ? request.origin() : `${request.protocol()}`,
-      timestamp: Date.now(),
+      origin: typeof request.origin === 'function'
+        ? request.origin()
+        : `${request.protocol()}://${request.hostname()}`
     }
 
     if (this.trackIp) {
@@ -31,7 +32,9 @@ class MixPanelHttpTracker {
 
     await next()
 
-    let isUserLoggedIn = canGetFromSession ? (parseInt(session.get('adonis-auth')) === 1) : !!auth.user
+    let isUserLoggedIn = canGetFromSession 
+      ? (parseInt(session.get('adonis-auth')) === 1)
+      : !!auth.user
     const user = isUserLoggedIn ? auth.user : { toJSON: () => ({}) }
 
     options.userLoggedIn = isUserLoggedIn
@@ -39,7 +42,7 @@ class MixPanelHttpTracker {
     options.responseStatusCode = response.response.statusCode
 
     if (typeof request.fingerprint === 'function') {
-      options.fingerprint =  request.fingerprint
+      options.fingerprint =  request.fingerprint()
     }
 
     if (typeof request.currentRoute === 'function') {
@@ -48,8 +51,11 @@ class MixPanelHttpTracker {
 
     try {
       this.mixpanel.trackEvent('app_server_request', options)
-      this.mixpanel.trackIncrementOnUserBasicAttributes(user.toJSON(), { 'Server Requests Count': 1 })
-    } catch {
+      this.mixpanel.trackIncrementOnUserBasicAttributes(
+        user.toJSON(),
+        { 'Server Requests Count': 1 }
+      )
+    } catch (_) {
       ;
     }
   }
