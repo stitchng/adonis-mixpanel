@@ -6,8 +6,10 @@ class MixPanelUserPropsTracker {
   }
 
   async handle ({ request, auth, session }, next, settings = []) {
-
     let parsed = this.parseSetting(settings)
+
+    await next()
+
     let user = request.user
 
     try {
@@ -18,53 +20,60 @@ class MixPanelUserPropsTracker {
 
     if (parsed.length !== 0) {
       parsed.forEach((_parsed) => {
-        let [ store, accessor ] = _parsed.data || ['_', '_']
+        let [ store, accessor ] = _parsed.storage
         let context = {}
 
-        const canGetFromSession = store === 'session' 
+        const canGetFromSession = store === 'session'
           ? !!session && typeof session[accessor] === 'function'
           : false
 
-        context[store] = (
-          canGetFromSession ? session[accessor]()
-            : (store === 'cookie'
-              ? request.cookies() : {}))
+        if (store !== '_') {
+          context[store] = (
+            canGetFromSession && accessor === 'all' ? session[accessor]()
+              : (store === 'cookies' && accessor === 'all'
+                ? request.cookies() : {}))
+        }
 
         switch (_parsed.mark) {
-          case 'user_login':
-          case 'user_logout':
-            context['_tag'] = user[_parsed.username]
-            this.mixpanel.trackEvent(_parsed.mark, Object.assign(
-              {},
-              {
-                _context: context
-              }
-            ))
+          case 'set':
+            this.mixpanel.trackUserBasicAttributes(
+              user,
+              _parsed.userprop
+            )
             break
-          case 'user_updated':
-            this.mixpanel.trackUserMergedAttributes(
+          case 'set_once':
+            this.mixpanel.trackUserTransientAttributes(
               user,
               {
                 _context: context
-              }
+              },
+              _parsed.userprop
+            )
+            break
+          case 'increment':
+            this.mixpanel.trackIncrementOnUserBasicAttributes(
+              user,
+              {
+                _context: context
+              },
+              _parsed.userprop
             )
             break
         }
       })
     }
-
-    await next()
   }
 
   parseSetting (settings) {
     /* @SAMPLE:
 
       [
-        'user_logout;email',
-        'user_login;email|session.all' ,
-        'user_updated;full_name|cookie.all'
+        'set;email',
+        'increment;visits_to_home_page',
+        'set_once;|cookies.all',
+        'set_once;|session.all'
       ]
-    
+
     */
 
     const result = []
@@ -72,17 +81,17 @@ class MixPanelUserPropsTracker {
     settings.forEach(function (setting) {
       let parsed = {}
 
-      let [ mark, userprops ] = setting.split(';')
-      let [ username, storage ] = userprops.split('|')
+      let [ mark, aggregate ] = setting.split(';')
+      let [ userprop, storage ] = aggregate.split('|')
 
       parsed.mark = mark
-      parsed.username = username
-      parsed.data = storage.split('.')
+      parsed.userprop = userprop
+      parsed.storage = storage ? storage.split('.') : ['_', '_']
 
       result.push(parsed)
-    });
+    })
 
-    return result;
+    return result
   }
 }
 

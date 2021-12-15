@@ -8,7 +8,7 @@ class MixPanelHttpTracker {
 
   async handle ({ request, response, session, auth }, next) {
     const canGetFromSession = session && typeof session.get === 'function'
-  
+
     let method = request.method().toLowerCase()
 
     let options = {
@@ -19,7 +19,7 @@ class MixPanelHttpTracker {
       language: request.language(['en', 'fr', 'es', 'cy', 'da', 'de', 'el', 'fa', 'fi', 'ga', 'gd']),
       requestUrlPath: request.originalUrl(),
       isAjax: request.ajax(),
-      browser: request.header('User-Agent'),
+      httpClient: request.header('User-Agent'),
       referer: request.header('Referer'),
       origin: typeof request.origin === 'function'
         ? request.origin()
@@ -32,7 +32,7 @@ class MixPanelHttpTracker {
 
     await next()
 
-    let isUserLoggedIn = canGetFromSession 
+    let isUserLoggedIn = canGetFromSession
       ? (parseInt(session.get('adonis-auth')) === 1)
       : !!auth.user
     const user = isUserLoggedIn ? auth.user : { toJSON: () => ({}) }
@@ -40,14 +40,8 @@ class MixPanelHttpTracker {
     options.userLoggedIn = isUserLoggedIn
     options.responseHeaders = response.headers() || []
     options.responseStatusCode = response.response.statusCode
-
-    if (typeof request.fingerprint === 'function') {
-      options.fingerprint =  request.fingerprint()
-    }
-
-    if (typeof request.currentRoute === 'function') {
-      routeName =  request.currentRoute().name
-    }
+    options.fingerprint = request.fingerprint()
+    options.routeName = request.currentRoute().name
 
     try {
       this.mixpanel.trackEvent('app_server_request', options)

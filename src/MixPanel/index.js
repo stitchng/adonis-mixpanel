@@ -3,11 +3,14 @@
 class MixpanelApiClient {
   constructor (Agent, Config, Env) {
     this.client = null
-    this.aliasNameKey = Config.get('mixpanel.aliasNameKey')
-    this.trackIPAddress = Config.get('mixpanel.trackIP')
-    this.distinctIdNameKey = Config.get('mixpanel.distinctIdNameKey')
+    this.allowedEnvs = Config.get('mixpanel.allowedEnvs') || []
+    this.aliasNameKey = Config.get('mixpanel.aliasNameKey') || ''
+    this.trackIPAddress = Config.get('mixpanel.trackIP') || false
+    this.distinctIdNameKey = Config.get('mixpanel.distinctIdNameKey') || ''
 
-    if (Env.get('NODE_ENV') === 'production') {
+    this.isProd = this.allowedEnvs.includes(Env.get('NODE_ENV', ''))
+
+    if (this.isProd) {
       this.client = Agent.init(Config.get('mixpanel.apiToken'), {
         protocol: 'https'
       })
@@ -16,63 +19,108 @@ class MixpanelApiClient {
     }
   }
 
-  identifyUser (user = {}) {
-    let userName = user[this.aliasNameKey] || '_'
+  identifyUser (user = {}, alias = '') {
+    let userName = alias || user[this.aliasNameKey] || '_'
     let id = user[this.distinctIdNameKey]
 
-    this.client.alias(id, userName)
-    return [userName, id]
+    if (this.isProd && userName !== '_') {
+      this.client.alias(id, userName)
+      return [userName, id]
+    }
+
+    return []
   }
 
-  updateUserIdentification (user = {},  existingAlias, newAlias) {
+  updateUserIdentification (user = {}, existingAlias = '', newAlias = '') {
     let userName = newAlias || user[this.aliasNameKey] || '_'
 
-    if (!existingAlias || typeof existingAlias !== 'string') {
-      this.client.alias(userName)
-      return;
+    if (this.isProd && userName !== '_') {
+      if (!existingAlias || typeof existingAlias !== 'string') {
+        this.client.alias(userName)
+      }
+
+      if (existingAlias !== userName) {
+        this.client.alias(userName, existingAlias)
+      }
     }
 
-    this.client.alias(userName, existingAlias)
     return userName
   }
 
-  trackEvent (eventName = 'event', data = {}) {
+  trackUserEvent (eventName = 'event', data = {}, user = {}) {
+    let id = user[this.distinctIdNameKey] || '_'
+
     if (this.trackIP && !data.ip) {
-      throw new Error('[Adonis-Mixpanel]: event data need to contain ip address info to proceed')
+      throw new Error('[adonis-mixpanel]: event data need to contain ip address info to proceed')
     }
 
-    this.client.track(eventName, data)
+    if (this.isProd) {
+      this.client.track(eventName, id !== '_' ? Object.assign(
+        { distinct_id: id }, data
+      ) : data)
+    }
   }
 
-  trackUserBasicAttributes (user = {}, options = {}) {
+  trackUserBasicAttributes (user = {}, userProp = '', options = { $ignore_time: false }) {
     let userName = user[this.aliasNameKey] || '_'
-    let id = user[this.distinctIdNameKey]
 
-    delete user[this.distinctIdNameKey]
+    if (userProp !== this.aliasNameKey) {
+      delete user[this.aliasNameKey]
+    }
 
-    this.client.people.set(userName, 
-      Object.assign(
-        { distinct_id: id }, user
-      ),
-      options
-    )
+    if (this.isProd && userName !== '_') {
+      this.client.people.set(userName,
+        userProp || user,
+        userProp ? user[userProp] : options
+      )
+    }
 
     return userName
   }
 
-  trackIncrementOnUserBasicAttributes (user = {}, attribs = {}) {
+  trackUserTransientAttributes (user, attribs = {}, userProp = '') {
     let userName = user[this.aliasNameKey] || '_'
 
-    delete user[this.aliasNameKey]
+    if (userProp !== this.aliasNameKey) {
+      delete user[this.aliasNameKey]
+    }
 
-    this.client.people.increment(userName, attribs)
+    if (this.isProd && userName !== '_') {
+      this.client.people.set_once(userName,
+        userProp,
+        userProp ? user[userProp] : attribs
+      )
+    }
+
+    return userName
+  }
+
+  trackIncrementOnUserBasicAttributes (user = {}, attribs = {}, userProp = '') {
+    let userName = user[this.aliasNameKey] || '_'
+
+    if (userProp !== this.aliasNameKey) {
+      delete user[this.aliasNameKey]
+    }
+
+    if (this.isProd && userName !== '_') {
+      this.client.people.increment(
+        userName,
+        userProp || attribs,
+        userProp ? user[userProp] : undefined
+      )
+    }
+
+    return userName
   }
 
   trackUserForDeletion (user = {}, options = { $ignore_time: false, $ignore_alias: false }) {
     let userName = user[this.aliasNameKey] || '_'
 
     delete user[this.aliasNameKey]
-    this.client.people.delete_user(userName, options)
+
+    if (this.isProd && userName !== '_') {
+      this.client.people.delete_user(userName, options)
+    }
 
     return userName
   }
@@ -81,7 +129,10 @@ class MixpanelApiClient {
     let userName = user[this.aliasNameKey] || '_'
 
     delete user[this.aliasNameKey]
-    this.client.people.union(userName, options)
+
+    if (this.isProd && userName !== '_') {
+      this.client.people.union(userName, options)
+    }
 
     return userName
   }
@@ -90,7 +141,22 @@ class MixpanelApiClient {
     let userName = user[this.aliasNameKey] || '_'
 
     delete user[this.aliasNameKey]
-    this.client.people.track_charge(userName, billAmount)
+
+    if (this.isProd && userName !== '_') {
+      this.client.people.track_charge(userName, billAmount)
+    }
+
+    return userName
+  }
+
+  unTrackUserBillingCharges (user = {}) {
+    let userName = user[this.aliasNameKey] || '_'
+
+    delete user[this.aliasNameKey]
+
+    if (this.isProd && userName !== '_') {
+      this.client.people.clear_charges(userName)
+    }
 
     return userName
   }

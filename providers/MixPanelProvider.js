@@ -6,7 +6,6 @@ class MixPanelProvider extends ServiceProvider {
   register () {
     this.app.singleton('Adonis/Addons/MixPanel', (app) => {
       const Config = this.app.use('Adonis/Src/Config')
-      // const Helpers = this.app.use('Helpers')
       const Env = this.app.use('Env')
       const MixPanel = require('../src/MixPanel/index.js')
 
@@ -28,11 +27,7 @@ class MixPanelProvider extends ServiceProvider {
   }
 
   boot () {
-    /* const Server = use('Server')
-
-    Server.registerNamed({
-      mixtrack:'Adonis/Middleware/MixPanelUserPropsTracker'
-    }) */;
+    ;
   }
 }
 

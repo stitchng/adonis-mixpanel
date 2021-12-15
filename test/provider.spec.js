@@ -46,9 +46,9 @@ test.group('AdonisJS MixPanel Provider Test(s)', (group) => {
     let mixpanel = ioc.use('MixPanel')
 
     assert.instanceOf(mixpanel, MixPanel)
-    assert.isFunction(mixpanel.trackUserBillCharge)
-    assert.isFunction(mixpanel.trackUserModification)
-    assert.isFunction(mixpanel.trackEvent)
+    assert.isFunction(mixpanel.trackUserBillingCharge)
+    assert.isFunction(mixpanel.trackUserMergedAttributes)
+    assert.isFunction(mixpanel.trackUserEvent)
 
     assert.instanceOf(ioc.use('Adonis/Middleware/MixPanelHttpTracker'), MixPanelHttpTracker)
     assert.instanceOf(ioc.use('Adonis/Middleware/MixPanelUserPropsTracker'), MixPanelUserPropsTracker)

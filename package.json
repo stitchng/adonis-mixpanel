@@ -30,6 +30,8 @@
     "engagement",
     "API",
     "adonis",
+    "events",
+    "people",
     "mixpanel",
     "adonisjs",
     "adonis-framework"
@@ -49,7 +51,7 @@
   },
   "dependencies": {
     "@adonisjs/generic-exceptions": "^2.0.1",
-    "mixpanel": "^0.10.2",
+    "mixpanel": "^0.10.3",
     "debug": "^3.1.2"
   },
   "peerDependencies": {
