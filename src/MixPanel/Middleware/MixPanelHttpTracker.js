@@ -7,7 +7,7 @@ class MixPanelHttpTracker {
   }
 
   async handle ({ request, response, session, auth }, next) {
-    const canGetFromSession = !!session && typeof session.get === 'function'
+    const canGetFromSession = session && typeof session.get === 'function'
   
     let method = request.method().toLowerCase()
 
