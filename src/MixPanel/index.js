@@ -3,6 +3,10 @@
 class MixpanelApiClient {
   constructor (Agent, Config, Env) {
     this.client = null
+    this.aliasNameKey = Config.get('mixpanel.aliasNameKey')
+    this.trackIPAddress = Config.get('mixpanel.trackIP')
+    this.distinctIdNameKey = Config.get('mixpanel.distinctIdNameKey')
+
     if (Env.get('NODE_ENV') === 'production') {
       this.client = Agent.init(Config.get('mixpanel.apiToken'), {
         protocol: 'https'
@@ -12,45 +16,80 @@ class MixpanelApiClient {
     }
   }
 
-  trackEvent (eventName = 'event', options = {}) {
-    this.client.track(eventName, options)
+  identifyUser (user = {}) {
+    let userName = user[this.aliasNameKey] || '_'
+    let id = user[this.distinctIdNameKey]
+
+    this.client.alias(id, userName)
+    return [userName, id]
   }
 
-  trackUserCreation (user = {}, userNameKey, options = {}) {
-    let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
+  updateUserIdentification (user = {},  existingAlias, newAlias) {
+    let userName = newAlias || user[this.aliasNameKey] || '_'
 
-    delete user[userNameKey]
-    this.client.people.set(userName, Object.assign(
-      {}, options, user)
+    if (!existingAlias || typeof existingAlias !== 'string') {
+      this.client.alias(userName)
+      return;
+    }
+
+    this.client.alias(userName, existingAlias)
+    return userName
+  }
+
+  trackEvent (eventName = 'event', data = {}) {
+    if (this.trackIP && !data.ip) {
+      throw new Error('[Adonis-Mixpanel]: event data need to contain ip address info to proceed')
+    }
+
+    this.client.track(eventName, data)
+  }
+
+  trackUserBasicAttributes (user = {}, options = {}) {
+    let userName = user[this.aliasNameKey] || '_'
+    let id = user[this.distinctIdNameKey]
+
+    delete user[this.distinctIdNameKey]
+
+    this.client.people.set(userName, 
+      Object.assign(
+        { distinct_id: id }, user
+      ),
+      options
     )
 
     return userName
   }
 
-  trackUserDeletion (user = {}, userNameKey) {
-    let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
+  trackIncrementOnUserBasicAttributes (user = {}, attribs = {}) {
+    let userName = user[this.aliasNameKey] || '_'
 
-    delete user[userNameKey]
-    this.client.people.delete_user(userName)
+    delete user[this.aliasNameKey]
+
+    this.client.people.increment(userName, attribs)
+  }
+
+  trackUserForDeletion (user = {}, options = { $ignore_time: false, $ignore_alias: false }) {
+    let userName = user[this.aliasNameKey] || '_'
+
+    delete user[this.aliasNameKey]
+    this.client.people.delete_user(userName, options)
 
     return userName
   }
 
-  trackUserModification (user = {}, userNameKey, options = {}) {
-    let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
+  trackUserMergedAttributes (user = {}, options = {}) {
+    let userName = user[this.aliasNameKey] || '_'
 
-    delete user[userNameKey]
-    this.client.people.union(userName, Object.assign(
-      {}, options, user)
-    )
+    delete user[this.aliasNameKey]
+    this.client.people.union(userName, options)
 
     return userName
   }
 
-  trackUserBillCharge (user = {}, userNameKey, billAmount = 0) {
-    let userName = user[userNameKey] || `user_${(Math.random() * 2).toString(16).replace('.', '')}`
+  trackUserBillingCharge (user = {}, billAmount = 0) {
+    let userName = user[this.aliasNameKey] || '_'
 
-    delete user[userNameKey]
+    delete user[this.aliasNameKey]
     this.client.people.track_charge(userName, billAmount)
 
     return userName
