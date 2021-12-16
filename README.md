@@ -10,7 +10,7 @@ An addon/plugin package to provide Mixpanel data collection and tracking service
 
 ## Getting Started
 
->Install from the NPM Registry
+>Install from the NPM Registry - (Please read the **instructions.md** file to learn how to setup this package properly).
 
 ```bash
 
@@ -25,13 +25,13 @@ An addon/plugin package to provide Mixpanel data collection and tracking service
 ```js
 
 const mixpanel = use('MixPanel')
-const user = use('App/Models/User')
+const User = use('App/Models/User')
 
 class UserController {
 
     async fetch({ request, response }){
 
-        let allUsers = await user.all()
+        let allUsers = await User.all()
 
         return response.status(200).json({
             users:allUsers
@@ -48,13 +48,11 @@ class UserController {
             'last_name'
         ])
 
-        let newUser = await user.create(user_details)
+        let newUser = await User.create(user_details)
 
-        // track a new user registered to the web/mobile app
-        mixpanel.trackUserCreation(
-            newUser.toJSON(), 
-            'email',
-            {}
+        // track a new user registered to the web OR mobile app
+        mixpanel.trackUserBasicAttributes(
+            newUser.toJSON()
         );
 
         return response.status(201).json({
@@ -73,19 +71,18 @@ module.exports = UserController
 ```js
 
 const mixpanel = use('MixPanel')
-const user = use('App/Models/User')
+const User = use('App/Models/User')
 
 class BillingController {
 
     async payment({ request, response }){
 
-        let user = await user.find(1)
+        let user = await User.findBy('id', 1)
 
-        // track the charge made on a user for using the web/mobile app
-        // which ties to revenue from the user
-        mixpanel.trackUserBillCharge(
+        // track the charge made on a user for using the web OR mobile app
+        // which ties to revenue from the user for the app
+        mixpanel.trackUserBillingCharge(
             user,
-            'email',
             40000 // Naira
         )
     }
@@ -103,12 +100,22 @@ const Route = use('Route')
 
 Route.group(() => {
   Route.get('/all', 'UserController.fetch')
-  Route.put('/login', function({ request, response }){
-    return response.send('User Logged In!')
-  })
+  Route.put('/update/email', function({ auth, request, response }) {
+    const user = await auth.getUser()
+    user.merge({
+      email: request.input('email', null)
+    })
+
+    await user.save() // send to database
+    await user.reload() // refresh with new email
+
+    request.user = user.toJSON()
+    return response.status(200).send('User Updated Email!')
+  }).middleware (
+    ['auth', 'mixtrack: set;email']
+  ) // track updated data for user via 'email'
 })
 .prefix('user')
-.middleware(['mixtrack:user_login;email']) // track login events for every user via 'email'
 
 ```
 
