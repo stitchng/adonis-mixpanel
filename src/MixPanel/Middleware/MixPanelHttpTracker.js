@@ -13,7 +13,7 @@ class MixPanelHttpTracker {
 
     let options = {
       method: method,
-      payload: (/^(?:head|get)$/.test(method) ? request.get() : request.post()),
+      payload: request.isMethodCaheable() ? request.get() : request.post()),
       requestHeaders: request.headers(),
       requestCookies: request.plainCookies(),
       language: request.language(['en', 'fr', 'es', 'cy', 'da', 'de', 'el', 'fa', 'fi', 'ga', 'gd']),
@@ -21,9 +21,7 @@ class MixPanelHttpTracker {
       isAjax: request.ajax(),
       httpClient: request.header('User-Agent'),
       referer: request.header('Referer'),
-      origin: typeof request.origin === 'function'
-        ? request.origin()
-        : `${request.protocol()}://${request.hostname()}`
+      origin: request.origin()
     }
 
     if (this.trackIp) {
@@ -35,8 +33,9 @@ class MixPanelHttpTracker {
     let isUserLoggedIn = canGetFromSession
       ? (parseInt(session.get('adonis-auth')) === 1)
       : !!auth.user
-    const user = isUserLoggedIn ? auth.user : { toJSON: () => ({}) }
+    let user = isUserLoggedIn ? auth.user : { toJSON: () => ({}) }
 
+    user = user.toJSON()
     options.userLoggedIn = isUserLoggedIn
     options.responseHeaders = response.headers() || []
     options.responseStatusCode = response.response.statusCode
@@ -44,10 +43,10 @@ class MixPanelHttpTracker {
     options.routeName = request.currentRoute().name
 
     try {
-      this.mixpanel.trackEvent('app_server_request', options)
+      this.mixpanel.trackEvent('app_server_request', options, user)
       this.mixpanel.trackIncrementOnUserBasicAttributes(
-        user.toJSON(),
-        { 'Server Requests Count': 1 }
+        user,
+        'server_requests_count'
       )
     } catch (_) {
       ;
