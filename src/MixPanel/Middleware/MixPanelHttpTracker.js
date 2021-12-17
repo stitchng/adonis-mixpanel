@@ -43,7 +43,7 @@ class MixPanelHttpTracker {
     options.routeName = request.currentRoute().name
 
     try {
-      this.mixpanel.trackEvent('app_server_request', options, user)
+      this.mixpanel.trackUserEvent('app_server_request', options, user)
       this.mixpanel.trackIncrementOnUserBasicAttributes(
         user,
         'server_requests_count'
