@@ -9,7 +9,7 @@ module.exports = {
    | API Token
    |--------------------------------------------------------------------------
    |
-   |
+   | API token from the Mixpanel dashboard
    |
    |
    */
@@ -20,7 +20,7 @@ module.exports = {
    | API Key
    |--------------------------------------------------------------------------
    |
-   |
+   | API key from the Mixpanel dashboard
    |
    |
    */
@@ -31,7 +31,7 @@ module.exports = {
    | API Secret
    |--------------------------------------------------------------------------
    |
-   |
+   | API secret from your Mixpanel dashboard
    |
    |
    */
@@ -42,10 +42,10 @@ module.exports = {
    | Distinct ID Name Key
    |---------------------------------------------------------------------------
    |
+   | The property name on the `auth.user` object which is to be used as the
+   | Mixpanel distint_id value for the user being tracked
    |
-   |
-   |
-   |
+   | `auth.user['id']`
    */
   distinctIdNameKey: 'id',
 
@@ -54,20 +54,20 @@ module.exports = {
    | Alias Name Key
    |---------------------------------------------------------------------------
    |
+   | The property name on the `auth.user` object which is to be used as the
+   | Mixpanel alias value for the user being tracked
    |
-   |
-   |
-   |
+   | `auth.user['username']`
    */
-  aliasNameKey: 'email',
+  aliasNameKey: 'username',
 
   /*
    |---------------------------------------------------------------------------
    | Track IP Address
    |---------------------------------------------------------------------------
    |
-   |
-   |
+   | Whether or not the IP address of the client (usually forwarded by a proxy)
+   | is to be used to track geolocation info
    |
    |
    */
@@ -75,10 +75,10 @@ module.exports = {
 
   /*
    |---------------------------------------------------------------------------
-   | Allowed Environment For Tracking
+   | Allowed Environment(s)
    |---------------------------------------------------------------------------
    |
-   |
+   | The software application environment(s) where Mixpanel tracking is allowed
    |
    |
    |

@@ -3,6 +3,13 @@
 const { ServiceProvider } = require('@adonisjs/fold')
 
 class MixPanelProvider extends ServiceProvider {
+  /**
+   * Register namespaces to the IoC container
+   *
+   * @method register
+   *
+   * @return {void}
+   */
   register () {
     this.app.singleton('Adonis/Addons/MixPanel', (app) => {
       const Config = this.app.use('Adonis/Src/Config')
@@ -25,6 +32,15 @@ class MixPanelProvider extends ServiceProvider {
       return new MixPanelUserPropsTracker(this.app.use('Adonis/Addons/MixPanel'))
     })
   }
+
+  /**
+   * Optionally attach context getter when all providers
+   * have been registered
+   *
+   * @method boot
+   *
+   * @return {void}
+   */
 
   boot () {
     ;

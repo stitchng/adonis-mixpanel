@@ -3,7 +3,7 @@
 class MixPanelHttpTracker {
   constructor (mixpanel, Config) {
     this.mixpanel = mixpanel
-    this.trackIp = Config.get('mixpanel.trackIp')
+    this.trackIp = Config.get('mixpanel.trackIP')
   }
 
   async handle ({ request, response, session, auth }, next) {
@@ -13,7 +13,7 @@ class MixPanelHttpTracker {
 
     let options = {
       method: method,
-      payload: request.isMethodCaheable() ? request.get() : request.post()),
+      payload: request.isMethodCacheable() ? request.get() : request.post(),
       requestHeaders: request.headers(),
       requestCookies: request.plainCookies(),
       language: request.language(['en', 'fr', 'es', 'cy', 'da', 'de', 'el', 'fa', 'fi', 'ga', 'gd']),
@@ -32,15 +32,16 @@ class MixPanelHttpTracker {
 
     let isUserLoggedIn = canGetFromSession
       ? (parseInt(session.get('adonis-auth')) === 1)
-      : !!auth.user
+      : auth.user !== null
     let user = isUserLoggedIn ? auth.user : { toJSON: () => ({}) }
 
     user = user.toJSON()
     options.userLoggedIn = isUserLoggedIn
     options.responseHeaders = response.headers() || []
     options.responseStatusCode = response.response.statusCode
-    options.fingerprint = request.fingerprint()
+    options.requestFingerprint = request.fingerprint()
     options.routeName = request.currentRoute().name
+    options.time = new Date()
 
     try {
       this.mixpanel.trackUserEvent('app_server_request', options, user)

@@ -1,3 +1,12 @@
+<a name="0.1.1"></a>
+# 0.1.1 (2022-01-10)
+
+### Bug Fixes
+- Fixed error in middelware: `MixpanelHttpTracker.js`
+
+### Breaking Changes
+- Nil
+
 <a name="0.1.0"></a>
 # 0.1.0 (2021-12-16)
 

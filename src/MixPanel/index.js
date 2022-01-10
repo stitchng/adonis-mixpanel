@@ -50,8 +50,10 @@ class MixpanelApiClient {
   trackUserEvent (eventName = 'event', data = {}, user = {}) {
     let id = user[this.distinctIdNameKey] || '_'
 
-    if (this.trackIP && !data.ip) {
-      throw new Error('[adonis-mixpanel]: event data need to contain ip address info to proceed')
+    if (this.trackIPAddress && !data.ip) {
+      throw new Error(
+        '[adonis-mixpanel]: event data need to contain ip address info to proceed'
+      )
     }
 
     if (this.isProd) {
@@ -61,7 +63,7 @@ class MixpanelApiClient {
     }
   }
 
-  trackUserBasicAttributes (user = {}, userProp = '', options = { $ignore_time: false }) {
+  trackUserBasicAttributes (user = {}, userProp = '', options = {}) {
     let userName = user[this.aliasNameKey] || '_'
 
     if (userProp !== this.aliasNameKey) {

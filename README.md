@@ -112,7 +112,7 @@ Route.group(() => {
     request.user = user.toJSON()
     return response.status(200).send('User Updated Email!')
   }).middleware (
-    ['auth', 'mixtrack: set;email']
+    ['auth', 'mixtrack:set;email']
   ) // track updated data for user via 'email'
 })
 .prefix('user')
